@@ -1,3 +1,5 @@
+import { Prizes } from "./screens/Prizes.tsx";
+import { Wheel } from "./screens/Wheel.tsx";
 import { saveFailed, progress } from "./store/store.ts";
 import { screen } from "./ui/nav.ts";
 import { Scene } from "./ui/Scene.tsx";
@@ -15,6 +17,8 @@ export function App() {
       {s === "home" && <Home />}
       {s === "build" && <Build />}
       {s === "match" && <Match />}
+      {s === "wheel" && <Wheel />}
+      {s === "prizes" && <Prizes />}
       {s === "setup" && <Setup />}
       {s === "pin" && <Pin />}
       {s === "parent" && <Parent />}
