@@ -72,7 +72,9 @@ export function settleColours(
   protect: PhonemeId[] = [],
 ): Record<PhonemeId, string> {
   const colours = { ...existing };
-  for (const id of inUse) if (!colours[id]) colours[id] = FIXED[id] && !blockedColours(id, colours, words).has(FIXED[id]) ? FIXED[id] : freeColour(id, colours, words);
+  // The mockup's own colours are handed out before any others, so nothing else takes them first.
+  for (const id of inUse) if (!colours[id] && FIXED[id] && !blockedColours(id, colours, words).has(FIXED[id])) colours[id] = FIXED[id];
+  for (const id of inUse) if (!colours[id]) colours[id] = freeColour(id, colours, words);
   const near = neighbourMap(words);
   for (let pass = 0; pass < 50; pass++) {
     let clash = false;

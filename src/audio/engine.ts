@@ -119,6 +119,11 @@ export function forget(id: string): void {
   void loadClip(id);
 }
 
+export function forgetAll(): void {
+  clips.clear();
+  loading.clear();
+}
+
 export function stopVoice(): void {
   const v = voice;
   voice = null;

@@ -15,7 +15,7 @@ export function Home() {
           <span class="avatar">{prize(progress.value.chosen.avatar).emoji}</span>
         </button>
         <h1>{name ? `${name}’s Sound Studio` : "Sound Studio"}</h1>
-        <button class="gear-button" aria-label="Grown-ups" onClick={() => go(lock.value ? "pin" : "setup")}><Gear size={32} /></button>
+        <button class="gear-button" aria-label="Grown-ups" onClick={() => go(lock.value ? "pin" : "setup")}><Gear size={40} /></button>
       </header>
       <nav class="modes">
         <button class="mode mode-build" aria-label="Sounds to words" onClick={() => go("build")}>
@@ -27,7 +27,7 @@ export function Home() {
         <button class="mode mode-match" aria-label="Words to sounds" onClick={() => go("match")}>
           <span class="mode-art art-match">
             <span class="art-word"><TileFace grapheme="c" phonemeId="k" /><TileFace grapheme="a" phonemeId="a_short" /><TileFace grapheme="t" phonemeId="t" /></span>
-            {[0, 1, 2].map(i => <span key={i} class="art-row"><Speaker size={34} /><em /></span>)}
+            {[0, 1, 2].map(i => <span key={i} class="art-row"><Speaker size={46} /><em /></span>)}
           </span>
         </button>
         <button class="mode mode-wheel" aria-label="Practice wheel" onClick={() => go("wheel")}>
