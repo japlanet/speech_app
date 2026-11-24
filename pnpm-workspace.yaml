@@ -1,0 +1,6 @@
+# Packages must have been published for at least a day before pnpm will install
+# them (the same supply-chain rule as the other game repos).
+minimumReleaseAge: 1440
+
+onlyBuiltDependencies:
+  - esbuild
