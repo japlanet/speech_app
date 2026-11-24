@@ -73,6 +73,10 @@ export function installUnlock(): void {
   setSession("playback");
   // Safari only counts some of these as a real touch, so listen to them all.
   for (const type of ["pointerdown", "pointerup", "touchend", "click", "keydown"]) document.addEventListener(type, unlock, { capture: true, passive: true });
+  // iPadOS can leave sound running-but-silent after a spell in the background. Stop it cleanly; the next touch restarts it.
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) void ctx?.suspend().catch(() => undefined);
+  });
   // Decode recordings ahead of time so that the first tap is instant.
   let last: ReadonlySet<string> = new Set();
   effect(() => {

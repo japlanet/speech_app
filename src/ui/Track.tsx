@@ -38,9 +38,10 @@ export function Track({ count, target, won }: { count: number; target: number; w
     const length = path.current!.getTotalLength();
     let frame = 0;
     const draw = (share: number) => {
-      const p = path.current!.getPointAtLength(share * length);
-      marble.current!.setAttribute("transform", `translate(${p.x} ${p.y - 17}) rotate(${share * 1400})`);
-      filled.current!.style.strokeDasharray = `${share * length} ${length + 10}`;
+      if (!path.current || !marble.current || !filled.current) return;
+      const p = path.current.getPointAtLength(share * length);
+      marble.current.setAttribute("transform", `translate(${p.x} ${p.y - 17}) rotate(${share * 1400})`);
+      filled.current.style.strokeDasharray = `${share * length} ${length + 10}`;
     };
     const step = (now: number) => {
       const t = Math.min(1, (now - began) / 650);

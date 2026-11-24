@@ -82,8 +82,8 @@ function BuildWord({ word, onNext }: { word: Word; onNext: () => void }) {
     next.r = Math.max(next.l + 1, next.r);
     next.b = Math.max(next.t + 1, next.b);
     area.current = next;
-    slotAt.current = slotEls.current.slice(0, word.tiles.length).map(el => {
-      const r = el!.getBoundingClientRect();
+    slotAt.current = slotEls.current.slice(0, word.tiles.length).filter(el => el !== null).map(el => {
+      const r = el.getBoundingClientRect();
       return { x: r.left - o.left + (r.width - size) / 2, y: r.top - o.top + (r.height - size) / 2 };
     });
     bodies.forEach((b, i) => {
@@ -202,7 +202,8 @@ function BuildWord({ word, onNext }: { word: Word; onNext: () => void }) {
     if (!h || h.pointer !== e.pointerId) return;
     held.current = null;
     const b = h.b;
-    b.el!.classList.remove("held");
+    if (!b.el || !alive.current) return;
+    b.el.classList.remove("held");
     b.state = "float";
     paint(b);
     if (!h.moved) {
@@ -293,7 +294,7 @@ function BuildWord({ word, onNext }: { word: Word; onNext: () => void }) {
   void media.value;
 
   return (
-    <main class="screen build" ref={stage}>
+    <main class="screen build" ref={stage} style={{ "--tiles": word.tiles.length }}>
       <Bar><span class={`word-picture ${done ? "hop" : ""}`}><Picture mediaKey={mediaKey.wordPicture(word.id)} emoji={word.emoji} /></span></Bar>
       <div class="word-line">
         <div class={`word-box ${done ? "done" : ""}`} ref={box}>

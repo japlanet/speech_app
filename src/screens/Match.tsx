@@ -94,7 +94,7 @@ function MatchWord({ word, choices, onNext }: { word: Word; choices: Word[]; onN
 
   const showWords = settings.value.showPrinted === "always" || right;
   return (
-    <main class="screen match">
+    <main class="screen match" style={{ "--tiles": word.tiles.length }}>
       <Bar>
         <div class={`word-box ${right ? "done" : ""}`}>
           {word.tiles.map((t, i) => (

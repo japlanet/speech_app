@@ -165,6 +165,7 @@ function WheelGame({ wheel }: { wheel: WheelData }) {
     const g = grab.current;
     if (!g || g.id !== e.pointerId) return;
     grab.current = null;
+    if (!alive.current || !disc.current) return;
     if (g.moved) {
       const first = g.trail[0];
       const last = g.trail[g.trail.length - 1];
