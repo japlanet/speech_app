@@ -26,7 +26,7 @@ export function Home() {
         </button>
         <button class="mode mode-match" aria-label="Words to sounds" onClick={() => go("match")}>
           <span class="mode-art art-match">
-            <span class="art-word"><TileFace grapheme="c" phonemeId="k" /><TileFace grapheme="a" phonemeId="a_short" /><TileFace grapheme="t" phonemeId="t" /></span>
+            <span class="art-word"><b><TileFace grapheme="c" phonemeId="k" /></b><b><TileFace grapheme="a" phonemeId="a_short" /></b><b><TileFace grapheme="t" phonemeId="t" /></b></span>
             {[0, 1, 2].map(i => <span key={i} class="art-row"><Speaker size={46} /><em /></span>)}
           </span>
         </button>

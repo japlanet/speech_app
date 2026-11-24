@@ -1,6 +1,7 @@
 import { saveFailed, progress } from "./store/store.ts";
 import { screen } from "./ui/nav.ts";
 import { Scene } from "./ui/Scene.tsx";
+import { Build } from "./screens/Build.tsx";
 import { Home } from "./screens/Home.tsx";
 import { Pin, Setup } from "./screens/Pin.tsx";
 import { Parent } from "./screens/parent/Parent.tsx";
@@ -11,6 +12,7 @@ export function App() {
     <>
       <Scene id={progress.value.chosen.background} />
       {s === "home" && <Home />}
+      {s === "build" && <Build />}
       {s === "setup" && <Setup />}
       {s === "pin" && <Pin />}
       {s === "parent" && <Parent />}
