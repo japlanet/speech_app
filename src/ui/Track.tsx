@@ -18,7 +18,8 @@ export function Track({ count, target, won }: { count: number; target: number; w
   const [k, setK] = useState(1);
   useLayoutEffect(() => {
     const fit = () => {
-      const r = svg.current!.getBoundingClientRect();
+      if (!svg.current) return;
+      const r = svg.current.getBoundingClientRect();
       if (r.height > 0) setK(Math.max(0.9, Math.min(2.4, ((r.width / r.height) * 160 - 94) / 946)));
     };
     const watch = new ResizeObserver(fit);

@@ -30,10 +30,11 @@ export function DominoStrip() {
     let falling: Promise<void> | null = null;
 
     const resize = () => {
-      const r = box.current!.getBoundingClientRect();
+      if (!box.current) return;
+      const r = box.current.getBoundingClientRect();
       const ratio = Math.min(2, window.devicePixelRatio || 1);
       W = r.width;
-      H = r.height - Number.parseFloat(getComputedStyle(box.current!).paddingBottom || "0");
+      H = r.height - Number.parseFloat(getComputedStyle(box.current).paddingBottom || "0");
       c.width = Math.round(W * ratio);
       c.height = Math.round(H * ratio);
       c.style.height = `${H}px`;
@@ -99,8 +100,8 @@ export function DominoStrip() {
         frame = requestAnimationFrame(tick);
       });
 
-    strip.settle = () => falling ?? Promise.resolve();
-    strip.add = async () => {
+    const settle = () => falling ?? Promise.resolve();
+    const add = async () => {
       const r = run(progress.value.chain);
       const drop = 0.26;
       await animate(t => {
@@ -113,7 +114,7 @@ export function DominoStrip() {
       sfx.place();
       paint();
     };
-    strip.topple = () => {
+    const topple = () => {
       if (falling) return falling;
       const count = progress.value.chain;
       if (count < 1) return Promise.resolve();
@@ -176,12 +177,14 @@ export function DominoStrip() {
       return falling;
     };
 
+    Object.assign(strip, { add, topple, settle });
     const watch = new ResizeObserver(resize);
     watch.observe(box.current!);
     resize();
     return () => {
       watch.disconnect();
-      strip.add = strip.topple = strip.settle = null;
+      // The next word's strip may already have taken over.
+      if (strip.add === add) strip.add = strip.topple = strip.settle = null;
       stop?.();
       cancelAnimationFrame(frame);
     };
