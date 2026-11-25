@@ -5,8 +5,12 @@ import { prize, type Prize } from "../core/prizes.ts";
 import { planSpin, spinAngle } from "../core/spin.ts";
 import { mediaKey, type Wheel as WheelData } from "../core/types.ts";
 import { activeWheel, addRep, centreKey, colourOf, has, media, progress, repsToday, today, winPrize } from "../store/store.ts";
+import { isMilestone, milestoneBefore } from "../core/party.ts";
 import { Bar, NotReady } from "../ui/Bar.tsx";
+import { celebrate } from "../ui/Celebration.tsx";
+import { popFrom } from "../ui/fx.ts";
 import { useAlive } from "../ui/hooks.ts";
+import { sleep } from "../ui/nav.ts";
 import { Muted, Speaker, Spin, Talking } from "../ui/icons.tsx";
 import { cased, MutedBadge } from "../ui/LetterTile.tsx";
 import { Picture } from "../ui/Picture.tsx";
@@ -192,13 +196,21 @@ function WheelGame({ wheel }: { wheel: WheelData }) {
     play(mediaKey.wheelItem(wheel.items[i].id));
   };
 
-  const said = () => {
+  const said = async (e: Event) => {
     if (cool) return;
+    const button = e.currentTarget as Element;
     setCool(true);
     setTimeout(() => alive.current && setCool(false), COOLDOWN);
     const wins = addRep();
     sfx.rep(Math.min(1, repsToday.value / wheel.target));
-    if (wins) setTimeout(() => alive.current && setWon({ prize: winPrize() }), 900);
+    popFrom(button, 40);
+    const count = repsToday.value;
+    if (!wins && !isMilestone(count, wheel.target)) return;
+    // Let the marble on the track below move first, then show the whole run.
+    await sleep(0.7);
+    if (!alive.current) return;
+    if (isMilestone(count, wheel.target)) await celebrate("run", milestoneBefore(count, wheel.target), count, wheel.target);
+    if (wins && alive.current) setWon({ prize: winPrize() });
   };
 
   const item = current === null ? null : wheel.items[current];
@@ -254,7 +266,7 @@ function WheelGame({ wheel }: { wheel: WheelData }) {
           ) : <div class="landed empty" />}
           <div class="wheel-buttons">
             <button class="spin-button" aria-label="Spin" disabled={spinning} onClick={() => spin(700 + Math.random() * 600)}><Spin size={64} /></button>
-            <button class={`said-button ${ready ? "" : "hidden"} ${cool ? "cool" : ""}`} aria-label="I said it!" disabled={!ready || cool} onClick={said}><Talking size={88} /><span>I said it!</span></button>
+            <button class={`said-button ${ready ? "" : "hidden"} ${cool ? "cool" : ""}`} aria-label="I said it!" disabled={!ready || cool} onClick={e => void said(e)}><Talking size={88} /><span>I said it!</span></button>
           </div>
         </div>
       </div>

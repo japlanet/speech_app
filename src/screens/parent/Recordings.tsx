@@ -5,7 +5,7 @@ import { TileFace } from "../../ui/LetterTile.tsx";
 import { SoundButtons } from "./bits.tsx";
 import { recordThese } from "./RecordDialog.tsx";
 
-const GROUPS: [Needed["group"], string][] = [["sounds", "Sounds"], ["wheel", "This week’s wheel"], ["words", "Words"]];
+const GROUPS: [Needed["group"], string][] = [["sounds", "Sounds"], ["wheel", "This week’s wheel"], ["words", "Words"], ["prizes", "New prizes"]];
 
 export function Recordings() {
   const [onlyMissing, setOnlyMissing] = useState(false);
@@ -20,7 +20,7 @@ export function Recordings() {
           <h2>{none ? "Let’s record the sounds first" : left.length ? `${left.length} recording${left.length === 1 ? "" : "s"} missing` : "Everything is recorded"}</h2>
           <p>{left.length
             ? `The app only ever plays your own voice, so nothing is heard until you record it. ${none ? `There are ${left.length} to do. You can stop at any time and carry on later.` : ""}`
-            : "Nothing is missing for the words and the wheel in use now."}</p>
+            : "Nothing is missing for the words, the wheel and the prizes in use now."}</p>
         </div>
         {left.length > 0 && <button class="btn primary big-btn" onClick={() => recordThese(left)}>{none ? "Start recording" : "Record the missing ones"}</button>}
       </section>

@@ -199,7 +199,45 @@ function blip(freq: number, at: number, length: number, level: number, type: Osc
   }
 }
 
+/** A puff of filtered noise: whooshes and thuds. */
+function puff(at: number, length: number, level: number, from: number, to: number): void {
+  if (!ctx || !master) return;
+  try {
+    const t = ctx.currentTime + at;
+    const buffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * length), ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+    const src = ctx.createBufferSource();
+    const filter = ctx.createBiquadFilter();
+    const g = ctx.createGain();
+    src.buffer = buffer;
+    filter.type = "bandpass";
+    filter.Q.value = 0.8;
+    filter.frequency.setValueAtTime(from, t);
+    filter.frequency.exponentialRampToValueAtTime(to, t + length);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(level, t + length * 0.3);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + length);
+    src.connect(filter).connect(g).connect(master);
+    src.start(t);
+  } catch {
+    /* ignore */
+  }
+}
+
+const SCALE = [0, 2, 4, 5, 7, 9, 11, 12];
 export const sfx = {
+  whoosh: () => puff(0, 0.5, 0.3, 300, 2600),
+  boom: () => { blip(150, 0, 0.4, 0.5, "sine", 42); puff(0, 0.3, 0.35, 1200, 160); blip(1568, 0.02, 0.35, 0.08); },
+  pop: () => blip(500 + Math.random() * 500, 0, 0.09, 0.16, "sine", 1300),
+  firework: () => { puff(0, 0.45, 0.22, 2400, 500); blip(900 + Math.random() * 900, 0, 0.3, 0.07); },
+  /** The dominoes' tune climbs one step for each domino, so a longer chain plays a longer tune. */
+  note: (i: number, of: number) => {
+    const f = 523 * 2 ** ((SCALE[of > 8 ? Math.round((i * 7) / (of - 1)) : i] ?? 12) / 12);
+    blip(f, 0, 0.3, 0.2, "triangle");
+    blip(f * 2, 0, 0.18, 0.06);
+  },
+  chord: () => [523, 659, 784, 1047, 1319].forEach((f, i) => blip(f, i * 0.025, 0.75, 0.11, "triangle")),
   tick: () => blip(1900, 0, 0.03, 0.07, "triangle", 1200),
   snap: () => { blip(700, 0, 0.05, 0.14, "triangle", 420); blip(1400, 0.02, 0.04, 0.05); },
   click: (i = 0) => { blip(900 + (i % 5) * 90, 0, 0.05, 0.22, "triangle", 300); blip(2400, 0, 0.015, 0.08, "square"); },

@@ -204,3 +204,13 @@ h1, h2, h3, p { margin: 0; }
 .prize { width: 108px; height: 108px; border-radius: 28px; border: 5px solid rgb(27 34 56 / .55); background: var(--paper); padding: 8px; flex: none; touch-action: pan-y; } .prize.on { border-color: var(--green); box-shadow: 0 0 0 6px rgb(31 157 87 / .45); } .prize.locked { background: rgb(255 250 240 / .45); border-style: dashed; } .prize.locked .pv { filter: grayscale(1); opacity: .45; } .prize.shaking { animation: shake .25s 2; }
 .domino-strip { z-index: 1; padding-bottom: env(safe-area-inset-bottom); background: linear-gradient(transparent calc(100% - env(safe-area-inset-bottom)), #b9783f 0); } .domino-strip canvas { display: block; width: 100%; pointer-events: none; }
 .first-domino { position: absolute; left: 0; top: 0; width: 116px; height: 100%; } .domino-strip .confetti { position: fixed; inset: 0; z-index: 9; }
+
+/* The full-screen celebration */
+.fx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 25; pointer-events: none; }
+.party { position: fixed; inset: 0; z-index: 28; overflow: hidden; touch-action: none; background: var(--sky); animation: iris .3s ease-out both; } .party.closing { animation: iris-out .3s ease-in both; }
+.party canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.rays { position: absolute; left: 50%; top: 45%; width: 200vmax; height: 200vmax; margin: -100vmax 0 0 -100vmax; border-radius: 50%; background: repeating-conic-gradient(var(--ray) 0 15deg, transparent 0 30deg); animation: rays 14s linear infinite; will-change: transform; }
+@keyframes rays { to { transform: rotate(360deg); } }
+@keyframes iris { from { clip-path: circle(0 at 50% 45%); } to { clip-path: circle(100vmax at 50% 45%); } }
+@keyframes iris-out { from { clip-path: circle(100vmax at 50% 45%); } to { clip-path: circle(0 at 50% 45%); } }
+@media (prefers-reduced-motion: reduce) { .rays { animation: none; } .party { animation: fade-in .3s both; } .party.closing { animation: fade-in .3s reverse both; } @keyframes fade-in { from { opacity: 0; } } }

@@ -101,6 +101,8 @@ export const mediaKey = {
   word: (id: string) => `w:${id}`,
   wheelCentre: (id: string) => `wc:${id}`,
   wheelItem: (id: string) => `wi:${id}`,
+  /** "New avatar unlocked!" and so on. */
+  unlocked: (slot: PrizeSlot) => `un:${slot}`,
   wordPicture: (id: string) => `pw:${id}`,
   itemPicture: (id: string) => `pi:${id}`,
 };

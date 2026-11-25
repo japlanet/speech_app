@@ -9,11 +9,11 @@ export interface Run {
   lean: number;
 }
 
-export function layRun(width: number, height: number, count: number, slots: number): Run {
-  const h = Math.min(92, height * 0.7);
+export function layRun(width: number, height: number, count: number, slots: number, tallest = 92): Run {
+  const h = Math.min(tallest, height * 0.7);
   const w = Math.max(13, h * 0.22);
   const x0 = 44;
-  const gap = Math.max(w * 1.7, Math.min(h * 0.74, (width - x0 - h - 24) / Math.max(1, slots - 1)));
+  const gap = Math.max(w * 1.7, Math.min(h * 0.74, (width - x0 - h - w - 24) / Math.max(1, slots - 1)));
   return { count, x0, gap, w, h, lean: Math.acos(Math.min(0.95, w / gap)) };
 }
 

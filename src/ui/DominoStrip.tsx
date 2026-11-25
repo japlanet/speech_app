@@ -1,15 +1,16 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 import { sfx } from "../audio/engine.ts";
-import { beat, corners, FALL, finalAngle, layRun, marblePath, ROLL, type Run } from "../core/dominoes.ts";
+import { beat, FALL, finalAngle, layRun, marblePath, ROLL, type Run } from "../core/dominoes.ts";
 import { prize } from "../core/prizes.ts";
 import { progress, setProgress, settings } from "../store/store.ts";
+import { drawDomino, drawMarble } from "./draw.ts";
 import { strip } from "./rewards.ts";
 import { Confetti } from "./Unlock.tsx";
 
 const RADIUS = 17;
 const SHELF = 14;
 
-/** The domino chain along the bottom of the screen. It grows by one for every right answer, then falls. */
+/** The domino chain along the bottom of the screen. It grows by one for every right answer. Touch the first one to knock it down. */
 export function DominoStrip() {
   const box = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -17,6 +18,7 @@ export function DominoStrip() {
   const chain = progress.value.chain;
   const dominoes = prize(progress.value.chosen.domino).colours ?? ["#d9a066"];
   const marble = prize(progress.value.chosen.marble).colours ?? ["#5fb4ff", "#1c5fc4"];
+  const toppleRef = useRef<(() => Promise<void>) | null>(null);
   const look = useRef({ dominoes, marble });
   look.current = { dominoes, marble };
 
@@ -52,27 +54,7 @@ export function DominoStrip() {
       g.fillStyle = "rgb(27 34 56 / .3)";
       for (let i = r.count; i < settings.value.roundLength; i++) g.fillRect(r.x0 + i * r.gap, H - SHELF - 3, r.w, 4);
     };
-    const domino = (r: Run, i: number, angle: number, lift = 0) => {
-      const pts = corners(r, i, angle);
-      const y0 = H - SHELF - lift;
-      g.beginPath();
-      pts.forEach(([x, y], k) => (k ? g.lineTo(x, y0 + y) : g.moveTo(x, y0 + y)));
-      g.closePath();
-      g.lineJoin = "round";
-      g.fillStyle = look.current.dominoes[i % look.current.dominoes.length];
-      g.fill();
-      g.lineWidth = 3;
-      g.strokeStyle = "#1b2238";
-      g.stroke();
-      g.fillStyle = "rgb(255 255 255 / .75)";
-      for (const t of [0.25, 0.75]) {
-        const x = (pts[0][0] + pts[3][0]) / 2 + ((pts[1][0] + pts[2][0] - pts[0][0] - pts[3][0]) / 2) * t;
-        const y = (pts[0][1] + pts[3][1]) / 2 + ((pts[1][1] + pts[2][1] - pts[0][1] - pts[3][1]) / 2) * t;
-        g.beginPath();
-        g.arc(x, y0 + y, r.w * 0.17, 0, 7);
-        g.fill();
-      }
-    };
+    const domino = (r: Run, i: number, angle: number) => drawDomino(g, r, i, angle, H - SHELF, look.current.dominoes);
     const paint = () => {
       if (falling) return;
       const r = run(progress.value.chain);
@@ -101,19 +83,6 @@ export function DominoStrip() {
       });
 
     const settle = () => falling ?? Promise.resolve();
-    const add = async () => {
-      const r = run(progress.value.chain);
-      const drop = 0.26;
-      await animate(t => {
-        const k = Math.min(1, t / drop);
-        shelf(r);
-        for (let i = 0; i < r.count - 1; i++) domino(r, i, 0);
-        domino(r, r.count - 1, 0, (1 - k * k) * (H - SHELF));
-        return k < 1;
-      });
-      sfx.place();
-      paint();
-    };
     const topple = () => {
       if (falling) return falling;
       const count = progress.value.chain;
@@ -143,25 +112,7 @@ export function DominoStrip() {
               rolled = bump;
               sfx.roll(roll);
             }
-            g.save();
-            g.translate(x, y);
-            const shade = g.createRadialGradient(-6, -7, 2, 0, 0, RADIUS);
-            shade.addColorStop(0, "#fff");
-            shade.addColorStop(0.3, look.current.marble[0]);
-            shade.addColorStop(1, look.current.marble[1]);
-            g.beginPath();
-            g.arc(0, 0, RADIUS, 0, 7);
-            g.fillStyle = shade;
-            g.fill();
-            g.lineWidth = 3;
-            g.strokeStyle = "#1b2238";
-            g.stroke();
-            g.rotate(x / RADIUS);
-            g.beginPath();
-            g.arc(0, 0, RADIUS * 0.55, 0.3, 2.2);
-            g.strokeStyle = "rgb(255 255 255 / .6)";
-            g.stroke();
-            g.restore();
+            drawMarble(g, x, y, RADIUS, x / RADIUS, look.current.marble);
           }
           if (roll < 1) return true;
           return false;
@@ -177,14 +128,15 @@ export function DominoStrip() {
       return falling;
     };
 
-    Object.assign(strip, { add, topple, settle });
+    toppleRef.current = topple;
+    Object.assign(strip, { settle, paint });
     const watch = new ResizeObserver(resize);
     watch.observe(box.current!);
     resize();
     return () => {
       watch.disconnect();
       // The next word's strip may already have taken over.
-      if (strip.add === add) strip.add = strip.topple = strip.settle = null;
+      if (strip.paint === paint) strip.settle = strip.paint = null;
       stop?.();
       cancelAnimationFrame(frame);
     };
@@ -193,7 +145,7 @@ export function DominoStrip() {
   return (
     <div class="domino-strip" ref={box}>
       <canvas ref={canvas} />
-      {chain > 0 && <button class="first-domino" aria-label="Knock the dominoes down" onClick={() => void strip.topple?.()} />}
+      {chain > 0 && <button class="first-domino" aria-label="Knock the dominoes down" onClick={() => void toppleRef.current?.()} />}
       {party && <Confetti count={26} />}
     </div>
   );

@@ -26,6 +26,7 @@ The iPad asks to use the microphone when you record, and may ask again each time
 
 - Quiet room, about 20 cm from the iPad. Tap record, wait half a second, say it, tap stop. Silence is trimmed for you; drag the blue handles to adjust.
 - Keep sounds pure: a long "fffff" rather than "fuh", a short quiet puff for p, t and k.
+- The six "New avatar unlocked!" lines are under **New prizes**. Each plays when a prize of that kind is won.
 - For the wheel, record the blended model, for example a long "fffff" sliding into "hay".
 
 ## Each week: set up a new wheel
@@ -64,7 +65,7 @@ pnpm install
 pnpm run dev
 ```
 
-`pnpm test` runs the rules (tile splitting, colours, decoys, minimal pairs, trimming, spin, dominoes, backups). Preact, TypeScript and Vite, with `idb` for storage and `fflate` for the zip. The letters are [Andika](https://software.sil.org/andika/) (SIL Open Font License), bundled with the app.
+`pnpm test` runs the rules (tile splitting, colours, decoys, minimal pairs, trimming, spin, dominoes, celebrations, backups). Preact, TypeScript and Vite, with `idb` for storage and `fflate` for the zip. The letters are [Andika](https://software.sil.org/andika/) (SIL Open Font License), bundled with the app.
 
 | Folder | Contents |
 | --- | --- |

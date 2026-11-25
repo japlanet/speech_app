@@ -1,16 +1,19 @@
 import { progress, setProgress, settings } from "../store/store.ts";
-import { sleep } from "./nav.ts";
+import { celebrate } from "./Celebration.tsx";
 
-type Act = (() => Promise<void>) | null;
 /** Filled in by the domino strip while it is on screen. */
-export const strip: { add: Act; topple: Act; settle: Act } = { add: null, topple: null, settle: null };
+export const strip: { settle: (() => Promise<void>) | null; paint: (() => void) | null } = { settle: null, paint: null };
 
-/** One more domino for a correct answer; the chain falls when the round is complete. */
+/** One more domino for a correct answer, shown full screen; the chain falls when the round is complete. */
 export async function rewardCorrect(): Promise<void> {
   await strip.settle?.();
+  const round = settings.value.roundLength;
   const chain = progress.value.chain + 1;
+  const full = chain >= round;
   setProgress({ chain });
-  await (strip.add?.() ?? sleep(0.3));
-  if (chain >= settings.value.roundLength) await strip.topple?.();
-  else await sleep(0.25);
+  // The strip below catches up while it is covered.
+  setTimeout(() => strip.paint?.(), 500);
+  await celebrate("dominoes", chain - 1, chain, round);
+  if (full) setProgress({ chain: Math.max(0, progress.value.chain - chain) });
+  strip.paint?.();
 }

@@ -9,6 +9,7 @@ import { DominoStrip } from "../ui/DominoStrip.tsx";
 import { useAlive } from "../ui/hooks.ts";
 import { Muted, Speaker } from "../ui/icons.tsx";
 import { TileFace } from "../ui/LetterTile.tsx";
+import { popFrom } from "../ui/fx.ts";
 import { sleep } from "../ui/nav.ts";
 import { Picture } from "../ui/Picture.tsx";
 import { rewardCorrect } from "../ui/rewards.ts";
@@ -274,6 +275,7 @@ function BuildWord({ word, onNext }: { word: Word; onNext: () => void }) {
         b.el?.classList.add("leaving");
       }
     }
+    popFrom(box.current);
     await sleep(wait);
     for (let i = 0; i < word.tiles.length; i++) {
       if (!alive.current) return;

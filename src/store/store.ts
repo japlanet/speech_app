@@ -2,9 +2,9 @@ import { computed, signal, type Signal } from "@preact/signals";
 import { settleColours } from "../core/colours.ts";
 import { localDate, msUntilMidnight } from "../core/day.ts";
 import { CATALOGUE, PHONEME_IDS } from "../core/phonemes.ts";
-import { nextPrize, ownsPrize, prize, type Prize } from "../core/prizes.ts";
+import { nextPrize, ownsPrize, prize, type Prize, UNLOCK_LINES } from "../core/prizes.ts";
 import { DEFAULT_PROGRESS, DEFAULT_SETTINGS, seedWheels, seedWords } from "../core/seed.ts";
-import { mediaKey, type Lock, type MediaRecord, type Phoneme, type Progress, type RepDay, type Settings, type Wheel, type Word } from "../core/types.ts";
+import { mediaKey, type Lock, type MediaRecord, type Phoneme, type PrizeSlot, type Progress, type RepDay, type Settings, type Wheel, type Word } from "../core/types.ts";
 import * as db from "./db.ts";
 
 export const words = signal<Word[]>([]);
@@ -53,7 +53,7 @@ export interface Needed {
   key: string;
   label: string;
   hint: string;
-  group: "sounds" | "words" | "wheel";
+  group: "sounds" | "words" | "wheel" | "prizes";
 }
 
 /** Every recording the app can use right now. Switched-off words and wheels are left out of the count. */
@@ -71,6 +71,7 @@ export const needed = computed<Needed[]>(() => {
     for (const i of wheel.items) out.push({ key: mediaKey.wheelItem(i.id), label: i.label, hint: `the blended model for “${i.label}”`, group: "wheel" });
   }
   for (const w of activeWords.value) out.push({ key: mediaKey.word(w.id), label: w.text, hint: "the whole word", group: "words" });
+  for (const [slot, line] of Object.entries(UNLOCK_LINES) as [PrizeSlot, string][]) out.push({ key: mediaKey.unlocked(slot), label: line, hint: "said when this prize is won", group: "prizes" });
   return out;
 });
 export const missing = computed(() => needed.value.filter(n => !media.value.has(n.key)));

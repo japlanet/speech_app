@@ -1,6 +1,7 @@
 import { useEffect, useState } from "preact/hooks";
-import { sfx } from "../audio/engine.ts";
+import { play, sfx, stopVoice } from "../audio/engine.ts";
 import type { Prize } from "../core/prizes.ts";
+import { mediaKey } from "../core/types.ts";
 import { choosePrize } from "../store/store.ts";
 import { Check } from "./icons.tsx";
 import { PrizePreview } from "./PrizePreview.tsx";
@@ -16,17 +17,25 @@ export function Confetti({ count = 42 }: { count?: number }) {
 export function Unlock({ prize, onClose }: { prize: Prize | null; onClose: () => void }) {
   const [open, setOpen] = useState(false);
   useEffect(() => {
-    const t = setTimeout(() => {
+    // After the fanfare, the parent's own "New avatar unlocked!" (nothing if it is not recorded).
+    let voice = 0;
+    const t = window.setTimeout(() => {
       setOpen(true);
       sfx.fanfare();
-      if (prize) choosePrize(prize.id);
+      if (!prize) return;
+      choosePrize(prize.id);
+      voice = window.setTimeout(() => play(mediaKey.unlocked(prize.slot)), 1150);
     }, 1300);
-    return () => clearTimeout(t);
+    return () => {
+      clearTimeout(t);
+      clearTimeout(voice);
+      stopVoice();
+    };
   }, []);
   return (
     <div class="unlock" role="dialog" aria-label="You won a prize">
       {open && <Confetti />}
-      {open ? <div class="unlock-prize">{prize ? <PrizePreview p={prize} /> : <span class="pv pv-emoji">🏆</span>}</div> : <div class="unlock-box">🎁</div>}
+      {open ? <button class="unlock-prize" aria-label="Your prize" onClick={() => prize && play(mediaKey.unlocked(prize.slot))}>{prize ? <PrizePreview p={prize} /> : <span class="pv pv-emoji">🏆</span>}</button> : <div class="unlock-box">🎁</div>}
       <button class={`round unlock-ok ${open ? "" : "hidden"}`} aria-label="Hooray" disabled={!open} onClick={onClose}><Check size={56} /></button>
     </div>
   );

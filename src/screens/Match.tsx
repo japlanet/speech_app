@@ -9,6 +9,7 @@ import { DominoStrip } from "../ui/DominoStrip.tsx";
 import { useAlive } from "../ui/hooks.ts";
 import { SoundBars, Speaker } from "../ui/icons.tsx";
 import { cased, TileFace } from "../ui/LetterTile.tsx";
+import { popFrom } from "../ui/fx.ts";
 import { sleep } from "../ui/nav.ts";
 import { rewardCorrect } from "../ui/rewards.ts";
 
@@ -150,6 +151,7 @@ function MatchWord({ word, choices, onNext }: { word: Word; choices: Word[]; onN
     // From here the box itself shows the card, so it stays put if the iPad is turned.
     setRight(true);
     sfx.bell();
+    popFrom(answer.current);
     await sleep(0.7);
     for (let i = 0; i < word.tiles.length; i++) {
       if (!alive.current) return;

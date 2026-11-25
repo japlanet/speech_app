@@ -8,6 +8,16 @@ export interface Prize {
   colours?: string[];
 }
 
+/** What the parent records for each kind of prize. */
+export const UNLOCK_LINES: Record<PrizeSlot, string> = {
+  avatar: "New avatar unlocked!",
+  background: "New background unlocked!",
+  domino: "New dominoes unlocked!",
+  marble: "New marble unlocked!",
+  tile: "New letter tiles unlocked!",
+  spin: "New wheel sparkles unlocked!",
+};
+
 export const STARTERS: Prize[] = [
   { id: "bg-meadow", slot: "background", emoji: "🌼" },
   { id: "av-bear", slot: "avatar", emoji: "🐻" },
