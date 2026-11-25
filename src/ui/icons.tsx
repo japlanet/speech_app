@@ -11,6 +11,7 @@ const cone = <path d="M6 19h8l11-9v28l-11-9H6z" fill="currentColor" />;
 export const Speaker = ({ size }: P) => <Svg size={size}>{cone}<path d="M32 17q6 7 0 14M37 11q12 13 0 26" /></Svg>;
 /** Shown wherever a recording has not been made yet. */
 export const Muted = ({ size }: P) => <Svg size={size}>{cone}<path d="M32 19l10 10M42 19l-10 10" /></Svg>;
+export const SoundBars = ({ size }: P) => <Svg size={size}><path d="M6 21v6M15 14v20M24 7v34M33 14v20M42 21v6" stroke-width="5" /></Svg>;
 export const HomeIcon = ({ size }: P) => <Svg size={size}><path d="M6 23 24 8l18 15M11 20v20h26V20" /><path d="M20 40V29h8v11" fill="currentColor" /></Svg>;
 export const Gear = ({ size }: P) => (
   <Svg size={size}>

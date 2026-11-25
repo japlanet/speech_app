@@ -5,7 +5,7 @@ An offline iPad app for practising speech sounds and first spelling at home. It 
 | Game | What the child does |
 | --- | --- |
 | Sounds → words | Drags floating sound tiles into the word box |
-| Words → sounds | Listens to three spoken words and picks the one that matches the tiles |
+| Words → sounds | Listens to three spoken words and drags the one that matches the tiles into the answer box |
 | Practice wheel | Spins this week's wheel, hears your model, says it, and counts each try |
 
 **Every voice in the app is a recording you make.** There is no text-to-speech. A sound with no recording is silent and shows a muted speaker.
