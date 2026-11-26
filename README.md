@@ -8,7 +8,7 @@ An offline iPad app for practising speech sounds and first spelling at home. It 
 | Words → sounds | Listens to three spoken words and drags the one that matches the tiles into the answer box |
 | Practice wheel | Spins this week's wheel, can tap to hear your model, says it, and counts each try |
 
-Each game gives one prize a day: the wheel when today's target is reached, the other two when a round of dominoes falls.
+Each game gives one prize a day: the wheel when today's target is reached, the other two when a round of dominoes falls. Once every prize is won, the three oldest (never ones he is using) quietly lock again, so there is always a new one to open.
 
 **Every voice in the app is a recording you make.** There is no text-to-speech. A sound with no recording is silent and shows a muted speaker.
 

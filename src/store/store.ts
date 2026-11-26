@@ -2,7 +2,7 @@ import { computed, signal, type Signal } from "@preact/signals";
 import { settleColours } from "../core/colours.ts";
 import { localDate, msUntilMidnight } from "../core/day.ts";
 import { CATALOGUE, PHONEME_IDS } from "../core/phonemes.ts";
-import { nextPrize, ownsPrize, prize, type Prize, UNLOCK_LINES } from "../core/prizes.ts";
+import { awardPrize, ownsPrize, prize, type Prize, UNLOCK_LINES } from "../core/prizes.ts";
 import { DEFAULT_PROGRESS, DEFAULT_SETTINGS, seedWheels, seedWords } from "../core/seed.ts";
 import { mediaKey, type Lock, type MediaRecord, type Phoneme, type PrizeSlot, type Progress, type RepDay, type Settings, type Wheel, type Word } from "../core/types.ts";
 import * as db from "./db.ts";
@@ -193,11 +193,11 @@ export function prizeDue(mode: PrizeMode): boolean {
   return progress.value[PRIZE_DAY[mode]] !== today.value;
 }
 
-/** Give this mode's prize for today. Null means every prize has already been won. */
+/** Give this mode's prize for today. Null only if every prize is won and in use. */
 export function winPrize(mode: PrizeMode = "wheel"): Prize | null {
-  const p = nextPrize(progress.value.unlocked);
-  setProgress({ [PRIZE_DAY[mode]]: today.value, unlocked: p ? [...progress.value.unlocked, p.id] : progress.value.unlocked });
-  return p;
+  const won = awardPrize(progress.value.unlocked, progress.value.chosen);
+  setProgress({ [PRIZE_DAY[mode]]: today.value, unlocked: won.unlocked });
+  return won.prize;
 }
 
 export function choosePrize(id: string): void {

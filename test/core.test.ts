@@ -198,3 +198,26 @@ test("auto trim of a lone /t/ keeps it, and silence is left whole", () => {
   const s = autoTrim(new Float32Array(RATE), RATE);
   assert.deepEqual([s.start, s.end], [0, 1]);
 });
+
+test("prizes cycle: once all are won, the oldest few come back, never the ones in use", async () => {
+  const { awardPrize, DEFAULT_CHOSEN, RECYCLE } = await import("../src/core/prizes.ts");
+  let unlocked: string[] = [];
+  const chosen = { ...DEFAULT_CHOSEN, domino: PRIZES[0].id };
+  for (const p of PRIZES) {
+    const won = awardPrize(unlocked, chosen);
+    assert.equal(won.prize?.id, p.id);
+    unlocked = won.unlocked;
+  }
+  const seen: string[] = [];
+  for (let day = 0; day < 60; day++) {
+    const won = awardPrize(unlocked, chosen);
+    assert.ok(won.prize, "always a prize");
+    assert.ok(!unlocked.slice(-(PRIZES.length - RECYCLE)).includes(won.prize.id), "never one won recently");
+    assert.notEqual(won.prize.id, PRIZES[0].id, "the one in use is never taken away");
+    assert.ok(unlocked.length - won.unlocked.length <= RECYCLE - 1, "only a few are locked again");
+    assert.equal(new Set(won.unlocked).size, won.unlocked.length);
+    unlocked = won.unlocked;
+    seen.push(won.prize.id);
+  }
+  assert.equal(new Set(seen).size, PRIZES.length - 1, "every other prize comes round again");
+});

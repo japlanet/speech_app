@@ -78,3 +78,24 @@ export function ownsPrize(id: string, unlocked: string[]): boolean {
 export function nextPrize(unlocked: string[]): Prize | null {
   return PRIZES.find(p => !unlocked.includes(p.id)) ?? null;
 }
+
+/** How many of the oldest prizes are quietly put back once every prize has been won. */
+export const RECYCLE = 3;
+
+/**
+ * The next prize, and the unlocked list after winning it. Once every prize is won, the oldest few
+ * (never one he is using right now) are quietly locked again so there is always something new to open.
+ * `unlocked` is kept in the order the prizes were won, so the cycle keeps turning.
+ */
+export function awardPrize(unlocked: string[], chosen: Chosen): { prize: Prize | null; unlocked: string[] } {
+  let owned = unlocked.filter(id => PRIZES.some(p => p.id === id));
+  let fresh = nextPrize(owned);
+  if (!fresh) {
+    const inUse = new Set(Object.values(chosen));
+    const back = owned.filter(id => !inUse.has(id)).slice(0, RECYCLE);
+    if (back.length === 0) return { prize: null, unlocked };
+    owned = owned.filter(id => !back.includes(id));
+    fresh = prize(back[0]);
+  }
+  return { prize: fresh, unlocked: [...owned, fresh.id] };
+}
