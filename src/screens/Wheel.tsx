@@ -43,8 +43,9 @@ function WheelGame({ wheel }: { wheel: WheelData }) {
   const [spinning, setSpinning] = useState(false);
   const [current, setCurrent] = useState<number | null>(null);
   const [landed, setLanded] = useState(false);
-  /** "I said it!" shows once the wheel stops; listening first is optional. */
+  /** "I said it!" shows once the wheel stops, once per spin; listening first is optional. */
   const [ready, setReady] = useState(false);
+  const counted = useRef(true);
   const [listened, setListened] = useState(false);
   const [cool, setCool] = useState(false);
   const [won, setWon] = useState<{ prize: Prize | null } | null>(null);
@@ -111,6 +112,7 @@ function WheelGame({ wheel }: { wheel: WheelData }) {
       setSpinning(false);
       setCurrent(plan.lands);
       setLanded(true);
+      counted.current = false;
       setReady(true);
       sfx.land();
     };
@@ -196,13 +198,14 @@ function WheelGame({ wheel }: { wheel: WheelData }) {
   const say = (i: number) => {
     if (busy.current) return;
     setCurrent(i);
-    setReady(true);
     setListened(true);
     play(mediaKey.wheelItem(wheel.items[i].id));
   };
 
   const said = async (e: Event) => {
-    if (cool) return;
+    if (cool || counted.current) return;
+    counted.current = true;
+    setReady(false);
     const button = e.currentTarget as Element;
     setCool(true);
     setTimeout(() => alive.current && setCool(false), COOLDOWN);
@@ -270,7 +273,7 @@ function WheelGame({ wheel }: { wheel: WheelData }) {
             </button>
           ) : <div class="landed empty" />}
           <div class="wheel-buttons">
-            <button class="spin-button" aria-label="Spin" disabled={spinning} onClick={() => spin(700 + Math.random() * 600)}><Spin size={64} /></button>
+            <button class={`spin-button ${!ready && !spinning ? "inviting" : ""}`} aria-label="Spin" disabled={spinning} onClick={() => spin(700 + Math.random() * 600)}><Spin size={64} /></button>
             <button class={`said-button ${ready ? "" : "hidden"} ${cool ? "cool" : ""}`} aria-label="I said it!" disabled={!ready || cool} onClick={e => void said(e)}><Talking size={88} /><span>I said it!</span></button>
           </div>
         </div>
