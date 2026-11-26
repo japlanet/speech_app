@@ -287,11 +287,18 @@ function BuildWord({ word, onNext }: { word: Word; onNext: () => void }) {
     setDone(true);
     await sleep(Math.max(0.6, play(mediaKey.word(word.id))) + 0.3);
     if (!alive.current) return;
-    await rewardCorrect();
+    await rewardCorrect("build");
     if (alive.current) onNext();
   };
 
-  useEffect(() => () => stopVoice(), []);
+  // Say the word once the tiles have settled in; the speaker button says it again.
+  useEffect(() => {
+    const t = window.setTimeout(() => !finished.current && play(mediaKey.word(word.id)), 600);
+    return () => {
+      clearTimeout(t);
+      stopVoice();
+    };
+  }, []);
   const spoken = has(mediaKey.word(word.id));
   void media.value;
 

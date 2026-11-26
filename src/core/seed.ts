@@ -27,5 +27,5 @@ export const DEFAULT_SETTINGS: Settings = {
 };
 
 export const DEFAULT_PROGRESS: Progress = {
-  level: 0, streak: 0, chain: 0, unlocked: [], chosen: { ...DEFAULT_CHOSEN }, lastPrizeDate: "",
+  level: 0, streak: 0, chain: 0, unlocked: [], chosen: { ...DEFAULT_CHOSEN }, lastPrizeDate: "", buildPrizeDate: "", matchPrizeDate: "",
 };

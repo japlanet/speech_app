@@ -43,7 +43,9 @@ function WheelGame({ wheel }: { wheel: WheelData }) {
   const [spinning, setSpinning] = useState(false);
   const [current, setCurrent] = useState<number | null>(null);
   const [landed, setLanded] = useState(false);
+  /** "I said it!" shows once the wheel stops; listening first is optional. */
   const [ready, setReady] = useState(false);
+  const [listened, setListened] = useState(false);
   const [cool, setCool] = useState(false);
   const [won, setWon] = useState<{ prize: Prize | null } | null>(null);
   const busy = useRef(false);
@@ -84,6 +86,7 @@ function WheelGame({ wheel }: { wheel: WheelData }) {
     setLanded(false);
     setCurrent(null);
     setReady(false);
+    setListened(false);
     const plan = planSpin(angle.current, speed, n);
     const began = performance.now();
     let nextSpark = 0;
@@ -108,6 +111,7 @@ function WheelGame({ wheel }: { wheel: WheelData }) {
       setSpinning(false);
       setCurrent(plan.lands);
       setLanded(true);
+      setReady(true);
       sfx.land();
     };
     frame.current = requestAnimationFrame(step);
@@ -193,6 +197,7 @@ function WheelGame({ wheel }: { wheel: WheelData }) {
     if (busy.current) return;
     setCurrent(i);
     setReady(true);
+    setListened(true);
     play(mediaKey.wheelItem(wheel.items[i].id));
   };
 
@@ -258,7 +263,7 @@ function WheelGame({ wheel }: { wheel: WheelData }) {
         </div>
         <div class="wheel-side">
           {item ? (
-            <button class={`landed ${landed && !ready ? "inviting" : ""}`} aria-label={`Hear ${item.label}`} onClick={() => current !== null && say(current)}>
+            <button class={`landed ${landed && !listened ? "inviting" : ""}`} aria-label={`Hear ${item.label}`} onClick={() => current !== null && say(current)}>
               <Picture mediaKey={mediaKey.itemPicture(item.id)} emoji={item.emoji || "⭐"} />
               <span class="landed-word">{cased(item.label)}</span>
               <span class={`landed-speaker ${itemHeard ? "" : "off"}`}>{itemHeard ? <Speaker size={44} /> : <Muted size={44} />}</span>

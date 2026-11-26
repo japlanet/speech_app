@@ -162,7 +162,7 @@ function MatchWord({ word, choices, onNext }: { word: Word; choices: Word[]; onN
     setLit(-1);
     await sleep(Math.max(0.6, play(mediaKey.word(word.id))) + 0.3);
     if (!alive.current) return;
-    await rewardCorrect();
+    await rewardCorrect("match");
     if (alive.current) onNext();
   };
 

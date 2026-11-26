@@ -78,6 +78,7 @@ export function readBackup(raw: unknown): BackupData {
   const progress: Progress = {
     level: num(p.level, 0, 0, 4), streak: num(p.streak, 0, 0, 100), chain: num(p.chain, 0, 0, 40),
     unlocked: strs(p.unlocked).filter(id => ALL_PRIZES.some(x => x.id === id)), lastPrizeDate: str(p.lastPrizeDate),
+    buildPrizeDate: str(p.buildPrizeDate), matchPrizeDate: str(p.matchPrizeDate),
     chosen: Object.fromEntries(Object.entries(DEFAULT_PROGRESS.chosen).map(([k, v]) => [k, str(chosen[k], v)])) as Progress["chosen"],
   };
 

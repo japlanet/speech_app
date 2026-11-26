@@ -74,6 +74,9 @@ export interface Progress {
   unlocked: string[];
   chosen: Chosen;
   lastPrizeDate: string;
+  /** The day a domino round last won a prize in mode 1 and in mode 2. */
+  buildPrizeDate: string;
+  matchPrizeDate: string;
 }
 
 export interface RepDay {

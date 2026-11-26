@@ -184,10 +184,19 @@ export function addRep(): boolean {
   return before + 1 >= w.target && progress.value.lastPrizeDate !== today.value;
 }
 
-/** Give today's prize (one a day). Null means every prize has already been won. */
-export function winPrize(): Prize | null {
+/** Each mode gives one prize a day: the wheel at its target, the other two when a domino round falls. */
+export type PrizeMode = "build" | "match" | "wheel";
+const PRIZE_DAY = { build: "buildPrizeDate", match: "matchPrizeDate", wheel: "lastPrizeDate" } as const;
+
+export function prizeDue(mode: PrizeMode): boolean {
+  checkDay();
+  return progress.value[PRIZE_DAY[mode]] !== today.value;
+}
+
+/** Give this mode's prize for today. Null means every prize has already been won. */
+export function winPrize(mode: PrizeMode = "wheel"): Prize | null {
   const p = nextPrize(progress.value.unlocked);
-  setProgress({ lastPrizeDate: today.value, unlocked: p ? [...progress.value.unlocked, p.id] : progress.value.unlocked });
+  setProgress({ [PRIZE_DAY[mode]]: today.value, unlocked: p ? [...progress.value.unlocked, p.id] : progress.value.unlocked });
   return p;
 }
 

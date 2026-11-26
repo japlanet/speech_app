@@ -1,3 +1,4 @@
+import { signal } from "@preact/signals";
 import { useEffect, useState } from "preact/hooks";
 import { play, sfx, stopVoice } from "../audio/engine.ts";
 import type { Prize } from "../core/prizes.ts";
@@ -39,4 +40,22 @@ export function Unlock({ prize, onClose }: { prize: Prize | null; onClose: () =>
       <button class={`round unlock-ok ${open ? "" : "hidden"}`} aria-label="Hooray" disabled={!open} onClick={onClose}><Check size={56} /></button>
     </div>
   );
+}
+
+const shown = signal<{ prize: Prize | null; done: () => void } | null>(null);
+
+/** Open a prize over whatever screen is showing; resolves when he taps the tick. */
+export function showUnlock(prize: Prize | null): Promise<void> {
+  return new Promise(done => {
+    shown.value = { prize, done };
+  });
+}
+
+export function UnlockLayer() {
+  const u = shown.value;
+  if (!u) return null;
+  return <Unlock prize={u.prize} onClose={() => {
+    shown.value = null;
+    u.done();
+  }} />;
 }
