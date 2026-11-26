@@ -18,13 +18,13 @@ export function SureButton({ label, sure, onSure }: { label: string; sure: strin
   return <button class={`btn danger ${armed ? "armed" : ""}`} onClick={() => (armed ? (setArmed(false), onSure()) : setArmed(true))}>{armed ? sure : label}</button>;
 }
 
-export function Stepper({ label, hint, value, min, max, step = 1, onChange }: { label: string; hint?: string; value: number; min: number; max: number; step?: number; onChange: (n: number) => void }) {
+export function Stepper({ label, hint, value, min, max, step = 1, stepDown = step, onChange }: { label: string; hint?: string; value: number; min: number; max: number; step?: number; stepDown?: number; onChange: (n: number) => void }) {
   const to = (n: number) => onChange(Math.max(min, Math.min(max, n)));
   return (
     <div class="row">
       <div class="grow"><b>{label}</b>{hint && <small>{hint}</small>}</div>
       <div class="stepper">
-        <button class="btn" aria-label={`Less: ${label}`} disabled={value <= min} onClick={() => to(value - step)}>−</button>
+        <button class="btn" aria-label={`Less: ${label}`} disabled={value <= min} onClick={() => to(value - stepDown)}>−</button>
         <output>{value}</output>
         <button class="btn" aria-label={`More: ${label}`} disabled={value >= max} onClick={() => to(value + step)}>+</button>
       </div>

@@ -79,6 +79,14 @@ export interface Progress {
   matchPrizeDate: string;
 }
 
+/** Where the wheel lands next: every picture once, in a shuffled order, then again. */
+export interface Deal {
+  date: string;
+  wheelId: string;
+  bag: string[];
+  last: string | null;
+}
+
 export interface RepDay {
   date: string;
   wheelId: string;

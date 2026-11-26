@@ -58,7 +58,7 @@ function WheelEditor({ wheel, onClose }: { wheel: Wheel; onClose: () => void }) 
           </select>
         </Field>
         <Switch label="Use this week" hint="Turns the other wheels off" on={wheel.active} onChange={on => set({ active: on })} />
-        <Stepper label="Daily target" hint="How many times to say it each day" value={wheel.target} min={LIMITS.target[0]} max={LIMITS.target[1]} step={wheel.target >= 10 ? 5 : 1} onChange={target => set({ target })} />
+        <Stepper label="Daily target" hint={laps(wheel.target, wheel.items.length)} value={wheel.target} min={LIMITS.target[0]} max={LIMITS.target[1]} step={wheel.target >= 20 ? 5 : 1} stepDown={wheel.target > 20 ? 5 : 1} onChange={target => set({ target })} />
         <div class="row">
           <div class="grow"><b>Recording for the middle</b><small>{wheel.phonemeId ? "Optional: otherwise it plays your recording of the sound" : "The sound on its own"}</small></div>
           <SoundButtons id={mediaKey.wheelCentre(wheel.id)} label={wheel.centre || "middle"} hint={`the middle of ${wheel.name}`} />
@@ -86,4 +86,12 @@ function WheelEditor({ wheel, onClose }: { wheel: Wheel; onClose: () => void }) 
       <SureButton label="Delete this wheel" sure="Tap again to delete it and its recordings" onSure={() => { onClose(); void deleteWheel(wheel.id); }} />
     </>
   );
+}
+
+/** "12 = twice round the wheel" when the target is a whole number of laps. */
+function laps(target: number, items: number): string {
+  const base = "How many times to say it each day";
+  if (items < 2 || target % items !== 0) return base;
+  const n = target / items;
+  return `${base}. ${target} = ${n === 1 ? "once" : n === 2 ? "twice" : `${n} times`} round the wheel, every picture ${n === 1 ? "once" : n === 2 ? "twice" : `${n} times`}`;
 }

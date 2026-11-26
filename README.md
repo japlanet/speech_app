@@ -6,7 +6,7 @@ An offline iPad app for practising speech sounds and first spelling at home. It 
 | --- | --- |
 | Sounds → words | Hears the word, then drags floating sound tiles into the word box |
 | Words → sounds | Listens to three spoken words and drags the one that matches the tiles into the answer box |
-| Practice wheel | Spins this week's wheel, can tap to hear your model, says it, and counts each try |
+| Practice wheel | Spins this week's wheel, can tap to hear your model, says it, and counts each try. The wheel lands on every picture once per lap in a new order, so a target of twice the pictures (12 for six) practises each one twice |
 
 Each game gives one prize a day: the wheel when today's target is reached, the other two when a round of dominoes falls. Once every prize is won, the three oldest (never ones he is using) quietly lock again, so there is always a new one to open.
 

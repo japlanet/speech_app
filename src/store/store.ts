@@ -3,8 +3,9 @@ import { settleColours } from "../core/colours.ts";
 import { localDate, msUntilMidnight } from "../core/day.ts";
 import { CATALOGUE, PHONEME_IDS } from "../core/phonemes.ts";
 import { awardPrize, ownsPrize, prize, type Prize, UNLOCK_LINES } from "../core/prizes.ts";
+import { drawFromBag } from "../core/random.ts";
 import { DEFAULT_PROGRESS, DEFAULT_SETTINGS, seedWheels, seedWords } from "../core/seed.ts";
-import { mediaKey, type Lock, type MediaRecord, type Phoneme, type PrizeSlot, type Progress, type RepDay, type Settings, type Wheel, type Word } from "../core/types.ts";
+import { mediaKey, type Lock, type MediaRecord, type Phoneme, type PrizeSlot, type Progress, type Deal, type RepDay, type Settings, type Wheel, type Word } from "../core/types.ts";
 import * as db from "./db.ts";
 
 export const words = signal<Word[]>([]);
@@ -19,8 +20,9 @@ export const lock = signal<Lock | null>(null);
 export const media = signal<ReadonlySet<string>>(new Set());
 export const saveFailed = signal(false);
 export const today = signal(localDate());
+export const deal = signal<Deal | null>(null);
 
-const parts = { words, wheels, settings, progress, reps, colours, lock } as const;
+const parts = { words, wheels, settings, progress, reps, colours, lock, deal } as const;
 type Part = keyof typeof parts;
 
 /** Change one part of the data and save it. The screen updates at once; the write follows. */
@@ -88,6 +90,7 @@ export async function load(): Promise<void> {
   reps.value = await get("reps", []);
   colours.value = settled(await get("colours", {}), words.value, wheels.value);
   lock.value = await get<Lock | null>("lock", null);
+  deal.value = await get<Deal | null>("deal", null);
   media.value = new Set(await db.mediaKeys());
 }
 
@@ -164,6 +167,7 @@ export async function dropMedia(ids: string[]): Promise<void> {
 export function resetProgress(): void {
   put("progress", { ...DEFAULT_PROGRESS, chosen: { ...DEFAULT_PROGRESS.chosen } });
   put("reps", []);
+  put("deal", null);
 }
 
 // ---- Wheel reps and prizes ----
@@ -172,6 +176,21 @@ export const repsToday = computed(() => {
   const w = activeWheel.value;
   return w ? (reps.value.find(r => r.date === today.value && r.wheelId === w.id)?.reps ?? 0) : 0;
 });
+
+/**
+ * Which picture the next spin lands on. Each lap of the wheel visits every picture once in a new
+ * order (never the same one twice in a row), so a target of twice the pictures hits each one twice.
+ * The lap carries on after a reload, and starts fresh each day.
+ */
+export function nextLanding(w: Wheel): number {
+  checkDay();
+  const ids = w.items.map(i => i.id);
+  const d = deal.value;
+  const same = d && d.date === today.value && d.wheelId === w.id;
+  const drawn = drawFromBag(same ? d.bag : [], ids, same ? d.last : null);
+  put("deal", { date: today.value, wheelId: w.id, bag: drawn.bag, last: drawn.next });
+  return Math.max(0, ids.indexOf(drawn.next ?? ""));
+}
 
 /** Count one attempt. Returns true if it is the one that reaches today's target. */
 export function addRep(): boolean {

@@ -16,7 +16,7 @@ export function SettingsTab() {
     <>
       <section class="card">
         <Field label="Child’s name, shown on the home screen (kept on this iPad only)"><input class="input" value={s.childName} maxLength={30} onInput={e => setSettings({ childName: e.currentTarget.value })} /></Field>
-        <Stepper label="Daily target" hint="For this week’s wheel, and for new wheels" value={target} min={LIMITS.target[0]} max={LIMITS.target[1]} step={target >= 10 ? 5 : 1} onChange={n => { setSettings({ defaultTarget: n }); if (wheel) saveWheel({ ...wheel, target: n }); }} />
+        <Stepper label="Daily target" hint="For this week’s wheel, and for new wheels" value={target} min={LIMITS.target[0]} max={LIMITS.target[1]} step={target >= 20 ? 5 : 1} stepDown={target > 20 ? 5 : 1} onChange={n => { setSettings({ defaultTarget: n }); if (wheel) saveWheel({ ...wheel, target: n }); }} />
         <Stepper label="Round length" hint="Words before the dominoes fall" value={s.roundLength} min={LIMITS.roundLength[0]} max={LIMITS.roundLength[1]} onChange={n => setSettings({ roundLength: n })} />
         <Choice label="Letters on tiles" value={s.letterCase} options={[["lower", "a b c"], ["upper", "A B C"]]} onChange={letterCase => setSettings({ letterCase })} />
         <Choice label="Printed words in “words → sounds”" hint="Hidden words make listening matter" value={s.showPrinted} options={[["afterCorrect", "After a right answer"], ["always", "Always"]]} onChange={showPrinted => setSettings({ showPrinted })} />

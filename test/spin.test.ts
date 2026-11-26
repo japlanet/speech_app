@@ -34,3 +34,38 @@ test("a spin always ends well inside the slice it says, in good time, the way it
   }
   assert.equal(hits.size, 6, "every item comes up");
 });
+
+test("a spin told where to stop lands there, still smooth, the way it was pushed", async () => {
+  for (let k = 0; k < 3000; k++) {
+    const count = 1 + Math.floor(Math.random() * 10);
+    const target = Math.floor(Math.random() * count);
+    const from = (Math.random() - 0.5) * 4000;
+    const speed = (Math.random() < 0.5 ? -1 : 1) * (100 + Math.random() * 1600);
+    const wobble = Math.random();
+    const p = planSpin(from, speed, count, wobble, target);
+    const free = planSpin(from, speed, count, wobble);
+    assert.equal(p.lands, target);
+    assert.equal(itemAt(p.to, count), target);
+    assert.ok((p.to - p.from) * Math.sign(speed) >= 80, "it really spins");
+    assert.ok(Math.abs(p.to - free.to) <= 360, "about as far as the same push would go anyway");
+    assert.ok(p.seconds >= 1 && p.seconds <= 5);
+  }
+});
+
+test("twelve spins on a six-picture wheel land on every picture twice, never twice in a row", async () => {
+  const { drawFromBag } = await import("../src/core/random.ts");
+  const ids = ["a", "b", "c", "d", "e", "f"];
+  for (let day = 0; day < 500; day++) {
+    let bag: string[] = [];
+    let last: string | null = null;
+    const hits: Record<string, number> = {};
+    for (let s = 0; s < 12; s++) {
+      const d = drawFromBag(bag, ids, last);
+      assert.notEqual(d.next, last);
+      bag = d.bag;
+      last = d.next;
+      hits[last!] = (hits[last!] ?? 0) + 1;
+    }
+    for (const id of ids) assert.equal(hits[id], 2);
+  }
+});

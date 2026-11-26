@@ -4,7 +4,7 @@ import { inkFor } from "../core/colours.ts";
 import { prize, type Prize } from "../core/prizes.ts";
 import { planSpin, spinAngle } from "../core/spin.ts";
 import { mediaKey, type Wheel as WheelData } from "../core/types.ts";
-import { activeWheel, addRep, centreKey, colourOf, has, media, progress, repsToday, today, winPrize } from "../store/store.ts";
+import { activeWheel, addRep, nextLanding, centreKey, colourOf, has, media, progress, repsToday, today, winPrize } from "../store/store.ts";
 import { isMilestone, milestoneBefore } from "../core/party.ts";
 import { Bar, NotReady } from "../ui/Bar.tsx";
 import { celebrate } from "../ui/Celebration.tsx";
@@ -87,7 +87,7 @@ function WheelGame({ wheel }: { wheel: WheelData }) {
     setCurrent(null);
     setReady(false);
     setListened(false);
-    const plan = planSpin(angle.current, speed, n);
+    const plan = planSpin(angle.current, speed, n, Math.random(), nextLanding(wheel));
     const began = performance.now();
     let nextSpark = 0;
     const step = (now: number) => {
