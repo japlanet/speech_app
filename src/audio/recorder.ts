@@ -1,4 +1,4 @@
-import { context, setSession, stopVoice } from "./engine.ts";
+import { context, refresh, setSession, stopVoice } from "./engine.ts";
 
 export class MicError extends Error {}
 export const MAX_SECONDS = 8;
@@ -84,5 +84,7 @@ export class Recorder {
     for (const t of this.stream?.getTracks() ?? []) t.stop();
     this.stream = this.node = this.meter = null;
     setSession("playback");
+    // The microphone changes how the iPad routes sound; a fresh context plays through the speaker again.
+    refresh();
   }
 }

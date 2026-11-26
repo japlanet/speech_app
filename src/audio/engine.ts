@@ -49,8 +49,44 @@ export function context(): AudioContext | null {
   return ctx;
 }
 
+/**
+ * iPadOS can leave a context that says "running" but makes no sound: after the app has been in the
+ * background, the screen has locked, a call or Siri, or the microphone has been in use. Resuming does
+ * not always bring it back, so in those cases the next touch throws it away and starts a fresh one.
+ * Decoded recordings are kept: they play in any context.
+ */
+let stale = false;
+let clock = { wall: 0, audio: 0 };
+
+/** Start afresh on the next touch. */
+export function refresh(): void {
+  stale = true;
+}
+
+function rebuild(): void {
+  const old = ctx;
+  stopVoice();
+  ctx = null;
+  master = null;
+  connected = false;
+  voice = null;
+  stale = false;
+  clock = { wall: 0, audio: 0 };
+  if (old) void old.close().catch(() => undefined);
+}
+
+/** A running context whose clock has stopped is the silent kind. */
+function frozen(c: AudioContext): boolean {
+  const wall = performance.now();
+  const was = clock;
+  clock = { wall, audio: c.currentTime };
+  if (c.state !== "running" || was.wall === 0) return false;
+  return wall - was.wall > 1000 && c.currentTime - was.audio < 0.05;
+}
+
 /** iPadOS keeps audio locked until a touch, and locks it again after a call, Siri or a long sleep. */
 function unlock(): void {
+  if (ctx && (stale || (ctx.state as string) === "interrupted" || ctx.state === "closed" || frozen(ctx))) rebuild();
   const c = context();
   if (!c || !master) return;
   if (!connected) {
@@ -75,8 +111,11 @@ export function installUnlock(): void {
   for (const type of ["pointerdown", "pointerup", "touchend", "click", "keydown"]) document.addEventListener(type, unlock, { capture: true, passive: true });
   // iPadOS can leave sound running-but-silent after a spell in the background. Stop it cleanly; the next touch restarts it.
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden) void ctx?.suspend().catch(() => undefined);
+    if (!document.hidden) return;
+    void ctx?.suspend().catch(() => undefined);
+    stale = true;
   });
+  window.addEventListener("pagehide", () => void (stale = true));
   // Decode recordings ahead of time so that the first tap is instant.
   let last: ReadonlySet<string> = new Set();
   effect(() => {
@@ -140,10 +179,12 @@ export function stopVoice(): void {
   }
 }
 
-function start(clip: Clip): number {
+function start(clip: Clip, id = ""): number {
   const c = context();
   if (!c || !master) return 0;
   stopVoice();
+  // Most plays come from a touch, which is when iPadOS lets a sleeping context wake.
+  if (c.state !== "running") void c.resume().catch(() => undefined);
   const length = Math.max(0.05, clip.end - clip.start);
   try {
     const src = c.createBufferSource();
@@ -159,7 +200,8 @@ function start(clip: Clip): number {
     src.start(t, clip.start, length);
     voice = { src, gain };
   } catch {
-    /* never block play on sound */
+    // Never block play on sound. Decode it again in case the old copy no longer plays.
+    if (id) forget(id);
   }
   return length;
 }
@@ -167,9 +209,9 @@ function start(clip: Clip): number {
 /** Play a recording. Returns how long it lasts in seconds, or 0 if there is no recording. */
 export function play(id: string): number {
   const clip = clips.get(id);
-  if (clip) return start(clip);
+  if (clip) return start(clip, id);
   if (!media.value.has(id)) return 0;
-  void loadClip(id).then(c => c && start(c));
+  void loadClip(id).then(c => c && start(c, id));
   return 0.8;
 }
 
